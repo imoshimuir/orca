@@ -4,7 +4,7 @@ export function normalizePostcodeForEstimate(value: string): string {
 }
 
 /**
- * Stable pseudo-random in [3, 5] — same normalised postcode always yields the same value.
+ * Stable pseudo-random in [4, 6] — same normalised postcode always yields the same value.
  * Uses FNV-1a over the postcode string.
  */
 export function discountPercentForPostcode(normalisedPostcode: string): number {
@@ -14,8 +14,8 @@ export function discountPercentForPostcode(normalisedPostcode: string): number {
     h = Math.imul(h, 16777619);
   }
   const u = h >>> 0;
-  // 3.00% … 5.00% inclusive in 0.01% steps
-  return 3 + (u % 201) / 100;
+  // 4.00% … 6.00% inclusive in 0.01% steps
+  return 4 + (u % 201) / 100;
 }
 
 export function estimateOrcaAnnualBill(

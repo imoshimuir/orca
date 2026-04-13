@@ -78,12 +78,12 @@ export function LandingPage() {
               </h1>
               <p className="hero-text__lead" hidden>
                 Water companies in England have taken advantage of businesses for too long. Switching to Orca could save
-                you upwards of 10% on your water bill, drastically reduce your leakages, and give you more accurate
+                you 4-6% on your water bill, drastically reduce your leakages, and give you more accurate
                 insights into your consumption.
               </p>
               <p className="hero-text__stats">
                 <span className="hero-text__stat">
-                  <span className="hero-text__stat-num">5%</span> instant saving
+                  <span className="hero-text__stat-num">4-6%</span> instant saving
                 </span>
                 <span className="hero-text__stat-sep" aria-hidden="true">
                   |
@@ -222,9 +222,7 @@ export function LandingPage() {
             <ul className="hero-stat-bar__list">
               <li className="hero-stat-bar__item">
                 <p className="hero-stat-bar__stat">
-                  <span className="hero-stat-bar__value" data-stat="percent" data-target="5" data-suffix="%+">
-                    0%+
-                  </span>
+                  <span className="hero-stat-bar__value">4-6%</span>
                   <span className="hero-stat-bar__label">instant saving on your water bill</span>
                 </p>
               </li>

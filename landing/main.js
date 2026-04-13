@@ -268,7 +268,7 @@
       h = Math.imul(h, 16777619);
     }
     var u = h >>> 0;
-    return 3 + (u % 201) / 100;
+    return 4 + (u % 201) / 100;
   }
 
   function estimateOrcaAnnualBill(annualBillPounds, normalisedPostcode) {
