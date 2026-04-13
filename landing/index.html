@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>orca.eco — Smarter water supply</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar" id="site-header">
+      <div class="topbar__backdrop" id="topbar-backdrop" aria-hidden="true"></div>
+      <div class="topbar__inner">
+        <a class="brand" href="#top">
+          <img
+            class="brand__logo"
+            src="../Group%2010%20(1).png"
+            alt="Orca"
+            width="2410"
+            height="655"
+            decoding="async"
+          />
+        </a>
+
+        <button
+          type="button"
+          class="topbar__menu-toggle"
+          id="topbar-menu-toggle"
+          aria-expanded="false"
+          aria-controls="primary-nav-panel"
+          aria-label="Open menu"
+        >
+          <span class="topbar__menu-bars" aria-hidden="true">
+            <span class="topbar__menu-bar"></span>
+            <span class="topbar__menu-bar"></span>
+            <span class="topbar__menu-bar"></span>
+          </span>
+        </button>
+
+        <div class="topbar__panel" id="primary-nav-panel">
+          <nav class="topbar__nav" aria-label="Primary">
+            <ul class="topbar__links">
+              <li><a href="#mission">Our mission</a></li>
+              <li><a href="#how-it-works">How it works</a></li>
+              <li><a href="#quote">Register your interest</a></li>
+            </ul>
+          </nav>
+
+          <div class="topbar__actions">
+            <a class="btn btn--primary btn--nav-cta" href="#quote">Get an instant estimate</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="page" id="top">
+      <section class="hero" aria-labelledby="hero-heading">
+        <canvas class="hero__grid-canvas" aria-hidden="true"></canvas>
+        <div class="hero__blur-layer" aria-hidden="true">
+          <div class="hero__blur-patch hero__blur-patch--copy"></div>
+          <div class="hero__blur-patch hero__blur-patch--cta"></div>
+          <div class="hero__blur-patch hero__blur-patch--h1"></div>
+        </div>
+        <div class="hero__inner">
+          <div class="hero-text">
+            <h1 class="hero-text__title" id="hero-heading">
+              Cheaper water bills <span class="hero-text__accent">for your business</span>.
+            </h1>
+            <p class="hero-text__lead" hidden>
+              Water companies in England have taken advantage of businesses for too long. Switching to Orca
+              could save you upwards of 10% on your water bill, drastically reduce your leakages, and give
+              you more accurate insights into your consumption.
+            </p>
+            <p class="hero-text__stats">
+              <span class="hero-text__stat"><span class="hero-text__stat-num">5%</span> instant saving</span>
+              <span class="hero-text__stat-sep" aria-hidden="true">|</span>
+              <span class="hero-text__stat">Switch in <span class="hero-text__stat-num">2</span> weeks</span>
+            </p>
+            <div class="hero-text__actions">
+              <a class="btn btn--primary btn--sm" href="#quote">Get an instant estimate</a>
+              <a class="btn btn--outline btn--sm" href="#mission">Read our mission</a>
+            </div>
+          </div>
+
+          <div class="save-card" id="quote">
+            <h2 class="save-card__title" id="estimate-heading">See how much you could save</h2>
+            <p class="save-card__hint">
+              Get an instant estimate — your bill, contact details, and postcode.
+            </p>
+            <form class="save-card__form" id="estimate-form" novalidate>
+              <div class="save-card__field">
+                <label class="save-card__label" for="water-bill">Annual water bill (£)</label>
+                <div class="save-card__input-wrap">
+                  <input
+                    class="save-card__input"
+                    type="text"
+                    id="water-bill"
+                    name="water-bill"
+                    placeholder="e.g. 450"
+                    inputmode="decimal"
+                    autocomplete="off"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="save-card__field">
+                <label class="save-card__label" for="estimate-email">Email</label>
+                <div class="save-card__input-wrap">
+                  <input
+                    class="save-card__input"
+                    type="email"
+                    id="estimate-email"
+                    name="email"
+                    placeholder="you@example.com"
+                    autocomplete="email"
+                    inputmode="email"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="save-card__field">
+                <label class="save-card__label" for="estimate-phone"
+                  >Phone <span class="save-card__optional">(optional)</span></label
+                >
+                <div class="save-card__input-wrap">
+                  <input
+                    class="save-card__input"
+                    type="tel"
+                    id="estimate-phone"
+                    name="phone"
+                    placeholder="e.g. 07123 456789"
+                    autocomplete="tel"
+                    inputmode="tel"
+                  />
+                </div>
+              </div>
+              <label class="sr-only" for="postcode">Postcode</label>
+              <div class="save-card__combo" role="group" aria-label="Postcode and estimate">
+                <input
+                  class="save-card__input"
+                  type="text"
+                  id="postcode"
+                  name="postcode"
+                  placeholder="Enter postcode"
+                  autocomplete="postal-code"
+                  inputmode="text"
+                  required
+                />
+                <button class="save-card__submit" type="submit">See my estimate</button>
+              </div>
+              <label class="save-card__consent" for="estimate-consent">
+                <input
+                  class="save-card__checkbox"
+                  type="checkbox"
+                  id="estimate-consent"
+                  name="consent"
+                  value="yes"
+                  required
+                />
+                <span class="save-card__consent-text"
+                  >I’m happy to be contacted about my estimate and Orca.eco updates.</span
+                >
+              </label>
+              <p class="save-card__feedback" id="estimate-feedback" role="status" aria-live="polite"></p>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section class="hero-stat-bar" aria-label="Key figures">
+        <div class="hero-stat-bar__inner">
+          <ul class="hero-stat-bar__list">
+            <li class="hero-stat-bar__item">
+              <p class="hero-stat-bar__stat">
+                <span class="hero-stat-bar__value" data-stat="percent" data-target="5" data-suffix="%+"
+                  >0%+</span
+                >
+                <span class="hero-stat-bar__label">instant saving on your water bill</span>
+              </p>
+            </li>
+            <li class="hero-stat-bar__item">
+              <p class="hero-stat-bar__stat">
+                <span class="hero-stat-bar__value" data-stat="percent" data-target="30" data-suffix="%+"
+                  >0%+</span
+                >
+                <span class="hero-stat-bar__label"
+                  >potential reduction in your water usage using advanced analytics</span
+                >
+              </p>
+            </li>
+            <li class="hero-stat-bar__item">
+              <p class="hero-stat-bar__stat">
+                <span class="hero-stat-bar__value" data-stat="seconds" data-target-seconds="82"
+                  >0 min 0 sec</span
+                >
+                <span class="hero-stat-bar__label"
+                  >the average time it takes to connect to our team on a call</span
+                >
+              </p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="mission" id="mission" aria-labelledby="mission-heading">
+        <div class="mission__inner">
+          <div class="mission__content">
+            <p class="mission__eyebrow">Our mission</p>
+            <h2 class="mission__title" id="mission-heading">We are on a mission to make water supply cleaner and fairer</h2>
+            <p class="mission__lead">
+              For too long, large water companies—often owned or driven by financial institutions—have
+              treated UK households and businesses as a captive market: rising charges, complex
+              tariffs, and rewards that flow to distant shareholders before they flow back into
+              pipes, service, or the environment.
+            </p>
+            <blockquote class="mission__quote">
+              <p>
+                “Orca’s core mission is to help businesses consume no more than they need to.”
+              </p>
+            </blockquote>
+            <p class="mission__body">
+              <strong>orca.eco</strong> exists to change that. We’re building a straightforward way
+              to switch, see what you pay for, and choose supply that’s priced fairly and delivered
+              responsibly. That means transparent quotes, ongoing account clarity, and technology
+              that puts you in control—so savings and sustainability go to customers and communities,
+              not only to financial intermediaries.
+            </p>
+            <div class="section-cta">
+              <a class="btn btn--primary btn--sm" href="#quote">Get an instant estimate</a>
+              <a class="btn btn--outline btn--sm" href="#how-it-works">How switching works</a>
+            </div>
+          </div>
+          <div class="mission__visual">
+            <div class="orca-blob orca-blob--behind" aria-hidden="true"></div>
+            <div class="mission__frame">
+              <img
+                class="mission__img"
+                src="../imogen-basty.png"
+                alt="Two team members smiling outdoors, each holding a large water jug — fair supply in action"
+                width="640"
+                height="480"
+                decoding="async"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="how-it-works" id="how-it-works" aria-labelledby="how-it-works-heading">
+        <div class="how-it-works__inner">
+          <header class="how-it-works__header">
+            <p class="how-it-works__eyebrow">How it works</p>
+            <h2 class="how-it-works__title" id="how-it-works-heading">
+              From switch to savings — in three steps
+            </h2>
+          </header>
+
+          <div class="how-it-works__steps">
+            <div class="scroll-journey" id="scroll-journey" aria-hidden="true">
+              <div class="scroll-journey__track"></div>
+              <div class="scroll-journey__fill"></div>
+              <div class="scroll-journey__dots"></div>
+            </div>
+            <article class="how-step how-step--image-left">
+              <div class="how-step__visual">
+                <div class="how-step__blob orca-blob orca-blob--behind" aria-hidden="true"></div>
+                <div class="how-step__frame">
+                  <img
+                    class="how-step__img"
+                    src="../begin_switch.png"
+                    alt="ORCA Water Services technician servicing a smart meter outside a commercial building"
+                    width="1200"
+                    height="800"
+                    decoding="async"
+                  />
+                </div>
+              </div>
+              <div class="how-step__content">
+                <h3 class="how-step__heading">Begin your switch</h3>
+                <p class="how-step__text">
+                  We’ll switch you over as quickly as possible. Once you have submitted your details we’ll be able to
+                  give you an accurate estimate of your savings and start making recommendations for reducing your
+                  consumption.
+                </p>
+                <ul class="how-step__bullets">
+                  <li>Fast handover with a savings estimate based on the details you submit.</li>
+                  <li>Recommendations tailored to help you reduce water consumption.</li>
+                </ul>
+                <div class="how-step__cta">
+                  <a class="btn btn--primary btn--sm" href="#quote">Get an instant estimate</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="how-step how-step--image-right">
+              <div class="how-step__visual">
+                <div class="how-step__blob orca-blob orca-blob--behind" aria-hidden="true"></div>
+                <div class="how-step__frame">
+                  <img
+                    class="how-step__img"
+                    src="../orca_screenshot_dashboard.png"
+                    alt="ORCA dashboard showing savings overview, leakage monitoring, billing insights, and recommendations"
+                    width="1200"
+                    height="800"
+                    decoding="async"
+                  />
+                </div>
+              </div>
+              <div class="how-step__content">
+                <h3 class="how-step__heading">Manage your usage, alerts and recommendations on our platform</h3>
+                <p class="how-step__text">
+                  We use advanced models to detect anomalous water consumption on your site; this allows us to identify
+                  leaks as soon as they happen and provide high-impact recommendations on how you can reduce your
+                  consumption.
+                </p>
+                <ul class="how-step__bullets">
+                  <li>Leak and anomaly alerts driven by usage models, so issues surface early.</li>
+                  <li>High-impact savings ideas ranked by relevance to your sites.</li>
+                </ul>
+                <div class="how-step__cta">
+                  <a class="btn btn--primary btn--sm" href="#quote">Get an instant estimate</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="how-step how-step--image-left">
+              <div class="how-step__visual">
+                <div class="how-step__blob orca-blob orca-blob--behind" aria-hidden="true"></div>
+                <div class="how-step__frame">
+                  <img
+                    class="how-step__img"
+                    src="../Gemini_Generated_Image_idjd5yidjd5yidjd.png"
+                    alt=""
+                    width="1200"
+                    height="800"
+                    decoding="async"
+                  />
+                </div>
+              </div>
+              <div class="how-step__content">
+                <h3 class="how-step__heading">Multi-site management</h3>
+                <p class="how-step__text">
+                  We have built our site with multi-site operators in mind. You can manage all of your sites from one
+                  dashboard and we will issue consolidated bills, or you can choose to split them out. You can also set
+                  up your bills to be sent directly to your accounting software so you don’t have to worry about
+                  uploading them yourself every quarter.
+                </p>
+                <ul class="how-step__bullets">
+                  <li>One dashboard for every site, with consolidated or per-site billing.</li>
+                  <li>Optional bill delivery into your accounting tools—no manual quarterly uploads.</li>
+                </ul>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="final-cta" aria-labelledby="final-cta-heading">
+        <div class="final-cta__inner">
+          <div class="final-cta__card">
+            <h2 class="final-cta__title" id="final-cta-heading">Find out how much you could save</h2>
+            <p class="final-cta__lead">
+              Get a free, no-obligation estimate in under a minute. Most businesses save at least 5% when they switch
+              to Orca.
+            </p>
+            <a class="btn btn--primary final-cta__btn" href="#quote"
+              >Get an instant estimate <span class="final-cta__arrow" aria-hidden="true">→</span></a
+            >
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <p class="site-footer__copy">© 2026 Orca · orca.eco</p>
+        <ul class="site-footer__links">
+          <li><a href="#">Privacy</a></li>
+          <li><a href="#">Terms</a></li>
+          <li><a href="mailto:hello@orca.eco">Contact</a></li>
+        </ul>
+      </div>
+    </footer>
+
+    <script src="hero-grid.js"></script>
+    <script src="scroll-journey-line.js"></script>
+    <script src="main.js"></script>
+  </body>
+</html>
