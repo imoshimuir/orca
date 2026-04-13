@@ -258,7 +258,27 @@
     feedback.classList.toggle("save-card__feedback--detail", Boolean(!isError && text.indexOf("\n") !== -1));
   }
 
-  form?.addEventListener("submit", function (e) {
+  function shouldSubmitLeads() {
+    if (typeof window === "undefined") return false;
+    var h = window.location.hostname;
+    return h !== "localhost" && h !== "127.0.0.1";
+  }
+
+  async function submitEstimateLead(payload) {
+    if (!shouldSubmitLeads()) return "skipped";
+    try {
+      var res = await fetch("/api/estimate-lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      return res.ok ? "ok" : "failed";
+    } catch (e) {
+      return "failed";
+    }
+  }
+
+  form?.addEventListener("submit", async function (e) {
     e.preventDefault();
     var bill = parseBillPounds(billInput?.value ?? "");
     if (bill === null) {
@@ -301,6 +321,22 @@
     var contactNote = phone
       ? "We’ll use " + email + " and " + phone + " to follow up."
       : "We’ll use " + email + " to follow up.";
+
+    var leadResult = await submitEstimateLead({
+      email: email,
+      phone: phone || "",
+      postcode: postcode,
+      bill: bill,
+      discountPercent: est.discountPercent,
+      orcaBill: est.orcaBill,
+      saving: est.saving,
+      consent: true,
+    });
+    var saveNote =
+      leadResult === "failed"
+        ? "\n\nWe couldn’t save your request just now — your estimate is still above. Please try again shortly."
+        : "";
+
     showMessage(
       [
         "Your area (" + postcode + ") qualifies for an illustrative " + pct + "% reduction on supply.",
@@ -308,7 +344,7 @@
         "Estimated with Orca: " + moneyFmt.format(est.orcaBill),
         "You could save about " + moneyFmt.format(est.saving) + " per year.",
         contactNote,
-      ].join("\n"),
+      ].join("\n") + saveNote,
       false
     );
   });

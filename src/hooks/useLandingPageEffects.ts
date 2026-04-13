@@ -244,7 +244,37 @@ export function useLandingPageEffects() {
       feedback.classList.toggle("save-card__feedback--detail", Boolean(!isError && text.includes("\n")));
     }
 
-    function onFormSubmit(e: Event) {
+    function shouldSubmitLeads(): boolean {
+      if (typeof window === "undefined") return false;
+      if (import.meta.env.VITE_SUBMIT_LEADS === "true") return true;
+      const h = window.location.hostname;
+      return h !== "localhost" && h !== "127.0.0.1";
+    }
+
+    async function submitEstimateLead(payload: {
+      email: string;
+      phone: string;
+      postcode: string;
+      bill: number;
+      discountPercent: number;
+      orcaBill: number;
+      saving: number;
+      consent: boolean;
+    }): Promise<"ok" | "failed" | "skipped"> {
+      if (!shouldSubmitLeads()) return "skipped";
+      try {
+        const res = await fetch("/api/estimate-lead", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        return res.ok ? "ok" : "failed";
+      } catch {
+        return "failed";
+      }
+    }
+
+    async function onFormSubmit(e: Event) {
       e.preventDefault();
       const bill = parseBillPounds(billInput?.value ?? "");
       if (bill === null) {
@@ -279,6 +309,22 @@ export function useLandingPageEffects() {
       const { discountPercent, orcaBill, saving } = estimateOrcaAnnualBill(bill, postcode);
       const pct = discountPercent.toFixed(2).replace(/\.?0+$/, "");
       const contactNote = phone ? `We’ll use ${email} and ${phone} to follow up.` : `We’ll use ${email} to follow up.`;
+
+      const leadResult = await submitEstimateLead({
+        email,
+        phone: phone ?? "",
+        postcode,
+        bill,
+        discountPercent,
+        orcaBill,
+        saving,
+        consent: true,
+      });
+      const saveNote =
+        leadResult === "failed"
+          ? "\n\nWe couldn’t save your request just now — your estimate is still above. Please try again shortly."
+          : "";
+
       showMessage(
         [
           `Your area (${postcode}) qualifies for an illustrative ${pct}% reduction on supply.`,
@@ -286,7 +332,7 @@ export function useLandingPageEffects() {
           `Estimated with Orca: ${money.format(orcaBill)}`,
           `You could save about ${money.format(saving)} per year.`,
           contactNote,
-        ].join("\n"),
+        ].join("\n") + saveNote,
         false
       );
     }
