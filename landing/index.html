@@ -90,7 +90,7 @@
           <div class="save-card" id="quote">
             <h2 class="save-card__title" id="estimate-heading">See how much you could save</h2>
             <p class="save-card__hint">
-              Get an instant estimate — your bill, contact details, and postcode.
+              Get an instant estimate — your bill, contact details, and postcode. We’re launching in your area soon!
             </p>
             <form class="save-card__form" id="estimate-form" novalidate>
               <div class="save-card__field">
@@ -151,7 +151,7 @@
                   inputmode="text"
                   required
                 />
-                <button class="save-card__submit" type="submit">See my estimate</button>
+                <button class="save-card__submit" type="submit" id="estimate-submit">See my estimate</button>
               </div>
               <label class="save-card__consent" for="estimate-consent">
                 <input
@@ -166,7 +166,27 @@
                   >I’m happy to be contacted about my estimate and Orca.eco updates.</span
                 >
               </label>
-              <p class="save-card__feedback" id="estimate-feedback" role="status" aria-live="polite"></p>
+              <div class="save-card__result" id="estimate-result" hidden aria-live="polite">
+                <p class="save-card__result-kicker">You could save</p>
+                <p class="save-card__result-hero">
+                  <span class="save-card__result-sum" id="estimate-result-saving"></span>
+                  <span class="save-card__result-hero-suffix">/year</span>
+                </p>
+                <p class="save-card__result-sub" id="estimate-result-sub"></p>
+                <p class="save-card__result-launch" id="estimate-result-launch"></p>
+                <div class="save-card__compare">
+                  <div class="save-card__compare-row">
+                    <span class="save-card__compare-label">Your bill today</span>
+                    <span class="save-card__compare-value" id="estimate-result-current"></span>
+                  </div>
+                  <div class="save-card__compare-row save-card__compare-row--orca">
+                    <span class="save-card__compare-label">Estimated with Orca</span>
+                    <span class="save-card__compare-value" id="estimate-result-orca"></span>
+                  </div>
+                </div>
+                <p class="save-card__result-note" id="estimate-result-followup"></p>
+              </div>
+              <p class="save-card__feedback" id="estimate-feedback" hidden role="status" aria-live="polite"></p>
             </form>
           </div>
         </div>

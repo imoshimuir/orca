@@ -204,6 +204,14 @@ export function useLandingPageEffects() {
 
     const form = document.getElementById("estimate-form");
     const feedback = document.getElementById("estimate-feedback");
+    const submitBtn = document.getElementById("estimate-submit") as HTMLButtonElement | null;
+    const resultPanel = document.getElementById("estimate-result");
+    const resultSaving = document.getElementById("estimate-result-saving");
+    const resultSub = document.getElementById("estimate-result-sub");
+    const resultLaunch = document.getElementById("estimate-result-launch");
+    const resultCurrent = document.getElementById("estimate-result-current");
+    const resultOrca = document.getElementById("estimate-result-orca");
+    const resultFollowup = document.getElementById("estimate-result-followup");
     const billInput = document.getElementById("water-bill") as HTMLInputElement | null;
     const emailInput = document.getElementById("estimate-email") as HTMLInputElement | null;
     const phoneInput = document.getElementById("estimate-phone") as HTMLInputElement | null;
@@ -211,6 +219,8 @@ export function useLandingPageEffects() {
     const consentCheckbox = document.getElementById("estimate-consent") as HTMLInputElement | null;
 
     const money = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" });
+    const submitLabelDefault = submitBtn?.textContent?.trim() || "See my estimate";
+    let estimateSubmitting = false;
 
     const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -237,11 +247,46 @@ export function useLandingPageEffects() {
       return n;
     }
 
-    function showMessage(text: string, isError: boolean) {
+    function showMessage(text: string, isError: boolean, isWarning = false) {
       if (!feedback) return;
       feedback.textContent = text;
+      const has = Boolean(text);
+      feedback.toggleAttribute("hidden", !has);
       feedback.classList.toggle("save-card__feedback--error", Boolean(isError));
-      feedback.classList.toggle("save-card__feedback--detail", Boolean(!isError && text.includes("\n")));
+      feedback.classList.toggle("save-card__feedback--warning", Boolean(!isError && isWarning));
+      feedback.classList.toggle("save-card__feedback--detail", Boolean(!isError && !isWarning && text.includes("\n")));
+    }
+
+    function hideResultPanel() {
+      resultPanel?.setAttribute("hidden", "");
+    }
+
+    function showResultPanel(data: {
+      saving: number;
+      bill: number;
+      orcaBill: number;
+      postcode: string;
+      pctLabel: string;
+      contactNote: string;
+    }) {
+      if (resultSaving) resultSaving.textContent = money.format(data.saving);
+      if (resultSub) {
+        resultSub.textContent = `Illustrative estimate: a typical ${data.pctLabel}% reduction for ${data.postcode}.`;
+      }
+      if (resultLaunch) {
+        resultLaunch.textContent = `We’re launching in your area soon — we’ll let you know as soon as Orca is live near ${data.postcode}!`;
+      }
+      if (resultCurrent) resultCurrent.textContent = money.format(data.bill);
+      if (resultOrca) resultOrca.textContent = money.format(data.orcaBill);
+      if (resultFollowup) resultFollowup.textContent = data.contactNote;
+      resultPanel?.removeAttribute("hidden");
+    }
+
+    function setEstimateSubmitting(active: boolean) {
+      if (!submitBtn) return;
+      submitBtn.disabled = active;
+      submitBtn.setAttribute("aria-busy", active ? "true" : "false");
+      submitBtn.textContent = active ? "Working…" : submitLabelDefault;
     }
 
     function shouldSubmitLeads(): boolean {
@@ -276,6 +321,9 @@ export function useLandingPageEffects() {
 
     async function onFormSubmit(e: Event) {
       e.preventDefault();
+      hideResultPanel();
+      showMessage("", false, false);
+
       const bill = parseBillPounds(billInput?.value ?? "");
       if (bill === null) {
         showMessage("Please enter a valid annual water bill (a number greater than zero).", true);
@@ -306,35 +354,49 @@ export function useLandingPageEffects() {
         consentCheckbox?.focus();
         return;
       }
-      const { discountPercent, orcaBill, saving } = estimateOrcaAnnualBill(bill, postcode);
-      const pct = discountPercent.toFixed(2).replace(/\.?0+$/, "");
-      const contactNote = phone ? `We’ll use ${email} and ${phone} to follow up.` : `We’ll use ${email} to follow up.`;
 
-      const leadResult = await submitEstimateLead({
-        email,
-        phone: phone ?? "",
-        postcode,
-        bill,
-        discountPercent,
-        orcaBill,
-        saving,
-        consent: true,
-      });
-      const saveNote =
-        leadResult === "failed"
-          ? "\n\nWe couldn’t save your request just now — your estimate is still above. Please try again shortly."
-          : "";
+      if (estimateSubmitting) return;
+      estimateSubmitting = true;
+      setEstimateSubmitting(true);
+      form?.setAttribute("aria-busy", "true");
 
-      showMessage(
-        [
-          `Your area (${postcode}) qualifies for an illustrative ${pct}% reduction on supply.`,
-          `Current bill: ${money.format(bill)}`,
-          `Estimated with Orca: ${money.format(orcaBill)}`,
-          `You could save about ${money.format(saving)} per year.`,
+      try {
+        const { discountPercent, orcaBill, saving } = estimateOrcaAnnualBill(bill, postcode);
+        const pct = discountPercent.toFixed(2).replace(/\.?0+$/, "");
+        const contactNote = phone ? `We’ll use ${email} and ${phone} to follow up.` : `We’ll use ${email} to follow up.`;
+
+        const leadResult = await submitEstimateLead({
+          email,
+          phone: phone ?? "",
+          postcode,
+          bill,
+          discountPercent,
+          orcaBill,
+          saving,
+          consent: true,
+        });
+
+        showResultPanel({
+          saving,
+          bill,
+          orcaBill,
+          postcode,
+          pctLabel: pct,
           contactNote,
-        ].join("\n") + saveNote,
-        false
-      );
+        });
+
+        if (leadResult === "failed") {
+          showMessage(
+            "We couldn’t save your request just now — your estimate is shown above. Please try again shortly.",
+            false,
+            true
+          );
+        }
+      } finally {
+        estimateSubmitting = false;
+        setEstimateSubmitting(false);
+        form?.removeAttribute("aria-busy");
+      }
     }
 
     form?.addEventListener("submit", onFormSubmit);

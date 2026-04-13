@@ -215,11 +215,39 @@
 
   const form = document.getElementById("estimate-form");
   const feedback = document.getElementById("estimate-feedback");
+  const submitBtn = document.getElementById("estimate-submit");
+  const resultPanel = document.getElementById("estimate-result");
+  const resultSaving = document.getElementById("estimate-result-saving");
+  const resultSub = document.getElementById("estimate-result-sub");
+  const resultLaunch = document.getElementById("estimate-result-launch");
+  const resultCurrent = document.getElementById("estimate-result-current");
+  const resultOrca = document.getElementById("estimate-result-orca");
+  const resultFollowup = document.getElementById("estimate-result-followup");
   const billInput = document.getElementById("water-bill");
+  const emailInput = document.getElementById("estimate-email");
+  const phoneInput = document.getElementById("estimate-phone");
   const postcodeInput = document.getElementById("postcode");
   const consentCheckbox = document.getElementById("estimate-consent");
 
   var moneyFmt = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" });
+  var submitLabelDefault = (submitBtn && submitBtn.textContent && submitBtn.textContent.trim()) || "See my estimate";
+  var estimateSubmitting = false;
+
+  var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function parseEmail(raw) {
+    var s = String(raw).trim();
+    if (!s || !emailOk.test(s)) return null;
+    return s;
+  }
+
+  function parseOptionalPhone(raw) {
+    var s = String(raw).trim();
+    if (!s) return null;
+    var digits = s.replace(/\D/g, "");
+    if (digits.length < 8) return false;
+    return s;
+  }
 
   function normalizePostcodeForEstimate(value) {
     return value.trim().replace(/\s+/g, " ").toUpperCase();
@@ -251,11 +279,48 @@
     return { discountPercent: discountPercent, orcaBill: orcaBill, saving: saving };
   }
 
-  function showMessage(text, isError) {
+  function showMessage(text, isError, isWarning) {
     if (!feedback) return;
+    isWarning = Boolean(isWarning);
     feedback.textContent = text;
+    var has = Boolean(text);
+    if (has) feedback.removeAttribute("hidden");
+    else feedback.setAttribute("hidden", "");
     feedback.classList.toggle("save-card__feedback--error", Boolean(isError));
-    feedback.classList.toggle("save-card__feedback--detail", Boolean(!isError && text.indexOf("\n") !== -1));
+    feedback.classList.toggle("save-card__feedback--warning", Boolean(!isError && isWarning));
+    feedback.classList.toggle(
+      "save-card__feedback--detail",
+      Boolean(!isError && !isWarning && text.indexOf("\n") !== -1)
+    );
+  }
+
+  function hideResultPanel() {
+    if (resultPanel) resultPanel.setAttribute("hidden", "");
+  }
+
+  function showResultPanel(data) {
+    if (resultSaving) resultSaving.textContent = moneyFmt.format(data.saving);
+    if (resultSub) {
+      resultSub.textContent =
+        "Illustrative estimate: a typical " + data.pctLabel + "% reduction for " + data.postcode + ".";
+    }
+    if (resultLaunch) {
+      resultLaunch.textContent =
+        "We’re launching in your area soon — we’ll let you know as soon as Orca is live near " +
+        data.postcode +
+        "!";
+    }
+    if (resultCurrent) resultCurrent.textContent = moneyFmt.format(data.bill);
+    if (resultOrca) resultOrca.textContent = moneyFmt.format(data.orcaBill);
+    if (resultFollowup) resultFollowup.textContent = data.contactNote;
+    if (resultPanel) resultPanel.removeAttribute("hidden");
+  }
+
+  function setEstimateSubmitting(active) {
+    if (!submitBtn) return;
+    submitBtn.disabled = active;
+    submitBtn.setAttribute("aria-busy", active ? "true" : "false");
+    submitBtn.textContent = active ? "Working…" : submitLabelDefault;
   }
 
   function shouldSubmitLeads() {
@@ -280,6 +345,9 @@
 
   form?.addEventListener("submit", async function (e) {
     e.preventDefault();
+    hideResultPanel();
+    showMessage("", false, false);
+
     var bill = parseBillPounds(billInput?.value ?? "");
     if (bill === null) {
       showMessage("Please enter a valid annual water bill (a number greater than zero).", true);
@@ -316,37 +384,50 @@
       return;
     }
 
-    var est = estimateOrcaAnnualBill(bill, postcode);
-    var pct = est.discountPercent.toFixed(2).replace(/\.?0+$/, "");
-    var contactNote = phone
-      ? "We’ll use " + email + " and " + phone + " to follow up."
-      : "We’ll use " + email + " to follow up.";
+    if (estimateSubmitting) return;
+    estimateSubmitting = true;
+    setEstimateSubmitting(true);
+    if (form) form.setAttribute("aria-busy", "true");
 
-    var leadResult = await submitEstimateLead({
-      email: email,
-      phone: phone || "",
-      postcode: postcode,
-      bill: bill,
-      discountPercent: est.discountPercent,
-      orcaBill: est.orcaBill,
-      saving: est.saving,
-      consent: true,
-    });
-    var saveNote =
-      leadResult === "failed"
-        ? "\n\nWe couldn’t save your request just now — your estimate is still above. Please try again shortly."
-        : "";
+    try {
+      var est = estimateOrcaAnnualBill(bill, postcode);
+      var pct = est.discountPercent.toFixed(2).replace(/\.?0+$/, "");
+      var contactNote = phone
+        ? "We’ll use " + email + " and " + phone + " to follow up."
+        : "We’ll use " + email + " to follow up.";
 
-    showMessage(
-      [
-        "Your area (" + postcode + ") qualifies for an illustrative " + pct + "% reduction on supply.",
-        "Current bill: " + moneyFmt.format(bill),
-        "Estimated with Orca: " + moneyFmt.format(est.orcaBill),
-        "You could save about " + moneyFmt.format(est.saving) + " per year.",
-        contactNote,
-      ].join("\n") + saveNote,
-      false
-    );
+      var leadResult = await submitEstimateLead({
+        email: email,
+        phone: phone || "",
+        postcode: postcode,
+        bill: bill,
+        discountPercent: est.discountPercent,
+        orcaBill: est.orcaBill,
+        saving: est.saving,
+        consent: true,
+      });
+
+      showResultPanel({
+        saving: est.saving,
+        bill: bill,
+        orcaBill: est.orcaBill,
+        postcode: postcode,
+        pctLabel: pct,
+        contactNote: contactNote,
+      });
+
+      if (leadResult === "failed") {
+        showMessage(
+          "We couldn’t save your request just now — your estimate is shown above. Please try again shortly.",
+          false,
+          true
+        );
+      }
+    } finally {
+      estimateSubmitting = false;
+      setEstimateSubmitting(false);
+      if (form) form.removeAttribute("aria-busy");
+    }
   });
 
   document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
